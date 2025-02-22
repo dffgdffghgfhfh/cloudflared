@@ -12,9 +12,12 @@ COPY . .
 RUN .teamcity/install-cloudflare-go.sh
 RUN PATH="/tmp/go/bin:$PATH" make cloudflared
 
-# 使用基础镜像不指定 nonroot 用户
+# 使用基础镜像并安装 bash
 FROM gcr.io/distroless/base-debian11
 LABEL org.opencontainers.image.source="https://github.com/cloudflare/cloudflared"
+
+# 安装 bash（或者 sh）
+RUN apt-get update && apt-get install -y bash
 
 # 将构建好的二进制文件复制到 distroless 镜像
 COPY --from=builder --chown=root /go/src/github.com/cloudflare/cloudflared/cloudflared /usr/local/bin/
