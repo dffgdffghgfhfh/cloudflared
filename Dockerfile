@@ -31,8 +31,8 @@ COPY --from=builder --chown=nonroot /go/src/github.com/cloudflare/cloudflared/cl
 # run as non-privileged user
 #USER nonroot
 
-ENTRYPOINT ["cloudflared", "tunnel", "run"]
-CMD ["--no-autoupdate"]
+ENTRYPOINT ["bash"]
+#CMD ["--no-autoupdate"]
 
 # command / entrypoint of container
 #ENTRYPOINT ["cloudflared", "--no-autoupdate"]
