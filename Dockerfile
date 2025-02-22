@@ -1,39 +1,26 @@
-# use a builder image for building cloudflare
+FROM golang:1.22.10 as builder
 ARG TARGET_GOOS
 ARG TARGET_GOARCH
-FROM golang:1.22.10 as builder
 ENV GO111MODULE=on \
-  CGO_ENABLED=0 \
-  TARGET_GOOS=${TARGET_GOOS} \
-  TARGET_GOARCH=${TARGET_GOARCH} \
-  # the CONTAINER_BUILD envvar is used set github.com/cloudflare/cloudflared/metrics.Runtime=virtual
-  # which changes how cloudflared binds the metrics server
-  CONTAINER_BUILD=1
+    CGO_ENABLED=0 \
+    TARGET_GOOS=${TARGET_GOOS} \
+    TARGET_GOARCH=${TARGET_GOARCH} \
+    CONTAINER_BUILD=1
 
 WORKDIR /go/src/github.com/cloudflare/cloudflared/
-
-# copy our sources into the builder image
 COPY . .
-
 RUN .teamcity/install-cloudflare-go.sh
-
-# compile cloudflared
 RUN PATH="/tmp/go/bin:$PATH" make cloudflared
 
-# use a distroless base image with glibc
-FROM gcr.io/distroless/base-debian11
-
+FROM gcr.io/distroless/base-debian11:nonroot
 LABEL org.opencontainers.image.source="https://github.com/cloudflare/cloudflared"
 
-# copy our compiled binary
-COPY --from=builder /go/src/github.com/cloudflare/cloudflared/cloudflared /usr/local/bin/
+# 将构建好的二进制文件复制到 distroless 镜像
+COPY --from=builder --chown=nonroot /go/src/github.com/cloudflare/cloudflared/cloudflared /usr/local/bin/
 
-# run as non-privileged user
-#USER nonroot
+# 指定用户
+USER nonroot
 
-ENTRYPOINT ["bash"]
-#CMD ["--no-autoupdate"]
-
-# command / entrypoint of container
-#ENTRYPOINT ["cloudflared", "--no-autoupdate"]
-#CMD ["version"]
+# 设置容器默认启动命令
+ENTRYPOINT ["cloudflared", "tunnel", "run"]
+CMD ["version"]  # 如果没有传入命令，默认运行版本显示
