@@ -21,6 +21,8 @@ COPY --from=builder --chown=nonroot /go/src/github.com/cloudflare/cloudflared/cl
 # 指定用户
 USER nonroot
 
-# 设置容器默认启动命令
-ENTRYPOINT ["cloudflared", "tunnel", "run"]
-CMD ["version"]  # 如果没有传入命令，默认运行版本显示
+# 容器的默认入口点
+ENTRYPOINT ["cloudflared", "--no-autoupdate", "tunnel", "run"]
+
+# 默认命令，可以通过 --token 覆盖
+CMD ["--token", "eyJhIjoiZjc2NTIwZGQ3NzA4MTFkMmM1MDdjNWU1ODg2MGY5YmIiLCJ0IjoiODVkOGE0NWQtOTg3Yy00YjcwLTg4ZTktYWU3NGUyZDZlMjUyIiwicyI6Ik5ESXdabU5sTmpJdE1UVTJZUzAwWmpZMExUbGhZbVF0TW1JNFkyVXlOalZpTm1RNSJ9"]
