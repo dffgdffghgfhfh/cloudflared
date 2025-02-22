@@ -12,14 +12,15 @@ COPY . .
 RUN .teamcity/install-cloudflare-go.sh
 RUN PATH="/tmp/go/bin:$PATH" make cloudflared
 
-FROM gcr.io/distroless/base-debian11:nonroot
+# 使用基础镜像不指定 nonroot 用户
+FROM gcr.io/distroless/base-debian11
 LABEL org.opencontainers.image.source="https://github.com/cloudflare/cloudflared"
 
 # 将构建好的二进制文件复制到 distroless 镜像
-COPY --from=builder --chown=nonroot /go/src/github.com/cloudflare/cloudflared/cloudflared /usr/local/bin/
+COPY --from=builder --chown=root /go/src/github.com/cloudflare/cloudflared/cloudflared /usr/local/bin/
 
-# 指定用户
-USER nonroot
+# 切换为 root 用户
+USER root
 
 # 容器的默认入口点
 ENTRYPOINT ["cloudflared", "--no-autoupdate", "tunnel", "run"]
