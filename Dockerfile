@@ -26,7 +26,7 @@ FROM gcr.io/distroless/base-debian11
 LABEL org.opencontainers.image.source="https://github.com/cloudflare/cloudflared"
 
 # copy our compiled binary
-COPY --from=builder --chown=nonroot /go/src/github.com/cloudflare/cloudflared/cloudflared /usr/local/bin/
+COPY --from=builder /go/src/github.com/cloudflare/cloudflared/cloudflared /usr/local/bin/
 
 # run as non-privileged user
 #USER nonroot
