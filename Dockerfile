@@ -10,7 +10,6 @@ ENV GO111MODULE=on \
   # which changes how cloudflared binds the metrics server
   CONTAINER_BUILD=1
 
-
 WORKDIR /go/src/github.com/cloudflare/cloudflared/
 
 # copy our sources into the builder image
